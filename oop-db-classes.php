@@ -2,13 +2,13 @@
 
 class BD {
 
-    static $servidor = "localhost", $usuario = "root", $password = "", $database = "sakila";
+    static $server = "localhost", $user = "root", $password = "", $database = "sakila";
     private $table, $idField, $fields, $showFields;
     private static $conn;
 
-    function __construct($tabla, $idField, $fields = '', $showFields = '') {
+    function __construct($table, $idField, $fields = '', $showFields = '') {
         self::conectar();
-        $this->table = $tabla;
+        $this->table = $table;
         $this->idField = $idField;
         $this->fields = $fields;
         $this->showFields = $showFields;
@@ -16,7 +16,7 @@ class BD {
 
     static function conectar() {
         try {
-            self::$conn = new PDO("mysql:host=" . self::$servidor . ";dbname=" . self::$database, self::$usuario, self::$password);
+            self::$conn = new PDO("mysql:host=" . self::$server . ";dbname=" . self::$database, self::$user, self::$password);
             self::$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
@@ -44,11 +44,11 @@ class BD {
     }
     
     function insert($arrayToInsert) {
-        $campos = implode(array_keys($arrayToInsert), ',');
-        $valores = implode($arrayToInsert, ',');
+        $fields = implode(array_keys($arrayToInsert), ',');
+        $values = implode($arrayToInsert, ',');
 
         try {
-            $insert_cat_sql = self::$conn->prepare("insert into " . $this->table . "($campos) values('$valores')");
+            $insert_cat_sql = self::$conn->prepare("insert into " . $this->table . "($fields) values('$values')");
             $insert_cat_sql->execute();
         } catch (Exception $e) {
             echo "Something wrong happened: " . $e->getMessage();
