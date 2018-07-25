@@ -1,29 +1,32 @@
 <?php
 
 class DB {
-
     static $servidor = "localhost", $usuario = "root", $password = "", $database = "sakila";
     private $table, $idField;
     private static $conn;
 
-    function __construct($tabla, $idField, $fields = '', $showFields = '') {
-        self::conectar();
-        $this->table = $tabla;
+    function __construct($table, $idField, $fields = '', $showFields = '') {
+        self::connect();
+        $this->table = $table;
         $this->idField = $idField;
         $this->fields = $fields;
         $this->showFields = $showFields;
     }
 
-    static function conectar() {
+    static function connect() {
         try {
-            self::$conn = new PDO("mysql:host=" . self::$servidor . ";dbname=" . self::$database, self::$usuario, self::$password);
+            self::$conn = new PDO("mysql:host=" . self::$server . ";dbname=" . self::$database, self::$user, self::$password);
             self::$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
         }
     }
 
-    function getAll($condicion = []) {
+    /**
+     * Returns all the elements from table that meet a specified condition, if param empty, returns all entries.
+     * @param array $condicion - passes the condition by collum value.
+     */
+    function getLines($condicion = []) {
         $getAllSql = 'Select * from ' . $this->table;
         if (!empty($condicion)) {
             $getAllSql = $getAllSql . ' where ' . join(' and ', array_map(function($v) {
@@ -38,28 +41,13 @@ class DB {
             echo "Something wrong happened: " . $e->getMessage();
         }
     }
-
-    /**
-     * Esta funcion nos devuelve el elemento de la tabla que tenga el id que lo pasamos por parametro
-     * @param int $id  - El id que buscaremos en la tabla.
-     */
-    function getById($id) {
-        try {
-            $sql = self::$conn->prepare("select * from " . $this->table . " where " . $this->table . "_id = " . $id);
-            $sql->execute();
-            $lineas = $sql->fetch(PDO::FETCH_ASSOC);
-            return $lineas;
-        } catch (Exception $e) {
-            echo "Something wrong happened: " . $e->getMessage();
-        }
-    }
-
+    
     function insert($arrayToInsert) {
-        $campos = implode(array_keys($arrayToInsert), ',');
-        $valores = implode($arrayToInsert, ',');
+        $fields = implode(array_keys($arrayToInsert), ',');
+        $values = implode($arrayToInsert, ',');
 
         try {
-            $insert_cat_sql = self::$conn->prepare("insert into " . $this->table . "($campos) values('$valores')");
+            $insert_cat_sql = self::$conn->prepare("insert into " . $this->table . "($fields) values('$values')");
             $insert_cat_sql->execute();
         } catch (Exception $e) {
             echo "Something wrong happened: " . $e->getMessage();
@@ -79,14 +67,14 @@ class DB {
      * @param int $id - id of the row to be updated
      * @param array $valores - associative array with collum names and values
      */
-    function update($id, $valores) {
-        $campos = join(',', array_map(function($v) {
+    function update($id, $values) {
+        $fields = join(',', array_map(function($v) {
                     return $v . '=:' . $v;
-                }, array_keys($valores)));
-        $sql = 'update ' . $this->table . ' set ' . $campos . ' where ' . $this->idField . ' = ' . $id;
+                }, array_keys($values)));
+        $sql = 'update ' . $this->table . ' set ' . $fields . ' where ' . $this->idField . ' = ' . $id;
         try {
             $st = self::$conn->prepare($sql);
-            $st->execute($valores);
+            $st->execute($values);
         } catch (Exception $exc) {
             echo $exc->getTraceAsString();
         }
