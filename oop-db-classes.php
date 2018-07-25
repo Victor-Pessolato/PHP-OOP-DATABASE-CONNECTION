@@ -14,20 +14,6 @@ class BD {
         $this->showFields = $showFields;
     }
 
-    function __get($name) {
-        if (property_exists($this, $name)) {
-            return $this->$name;
-        }
-    }
-
-    function __set($name, $value) {
-        if (property_exists($this, $name) && !empty($value)) {
-            $this->$name = $value;
-        } else {
-            throw new Exception('Error: datos incorrectos');
-        }
-    }
-
     static function conectar() {
         try {
             self::$conn = new PDO("mysql:host=" . self::$servidor . ";dbname=" . self::$database, self::$usuario, self::$password);
@@ -37,12 +23,17 @@ class BD {
         }
     }
 
-    function getAll() {
+    function getAll($condicion = []) {
+        $getAllSql = 'Select * from ' . $this->table;
+        if (!empty($condicion)) {
+            $getAllSql = $getAllSql . ' where ' . join(' and ', array_map(function($v) {
+                                return $v . '=:' . $v;
+                            }, array_keys($condicion)));
+        }
         try {
-            $sql = self::$conn->prepare("select * from " . $this->table);
-            $sql->execute();
-            $lineas = $sql->fetchAll(PDO::FETCH_ASSOC);
-            return $lineas;
+            $sql = self::$conn->prepare($getAllSql);
+            $sql->execute($condicion);
+            return $sql->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             echo "Something wrong happened: " . $e->getMessage();
         }
@@ -106,7 +97,7 @@ class BD {
 class Country extends BD {
 
     public function __construct() {
-        parent::__construct('country');
+        parent::__construct('country', 'country_id');
     }
 
     /**
@@ -122,7 +113,7 @@ class Country extends BD {
 class Actor extends BD {
 
     public function __construct() {
-        parent::__construct('actor');
+        parent::__construct('actor', 'actor_id');
     }
 
     /**
@@ -130,13 +121,8 @@ class Actor extends BD {
      * @param string $first_name - Actor's first name
      * @param string $last_name - Actor's last name
      */
-    public function insert($first_name, $last_name) {
+    public function insert($first_name, $last_name = '') {
         parent::insert(['first_name' => $first_name, 'last_name' => $last_name]);
     }
 
 }
-
-$paises = new Country();
-$actores = new Actor();
-
-$actores->insert('Ana', 'Pi');
