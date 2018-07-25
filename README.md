@@ -13,4 +13,3 @@ contains:
 4. function insert($arrayToInsert) - insert into table param type array assiociative.
 5. deleteById($id) - delete entry with param ID.
 6. function update($id, $valores) - updates entry with param $id by values in type associative array $valores.
-7. contains setters and getter for private variables.
