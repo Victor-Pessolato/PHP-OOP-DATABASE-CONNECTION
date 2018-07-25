@@ -14,20 +14,6 @@ class BD {
         $this->showFields = $showFields;
     }
 
-    function __get($name) {
-        if (property_exists($this, $name)) {
-            return $this->$name;
-        }
-    }
-
-    function __set($name, $value) {
-        if (property_exists($this, $name) && !empty($value)) {
-            $this->$name = $value;
-        } else {
-            throw new Exception('Error: datos incorrectos');
-        }
-    }
-
     static function conectar() {
         try {
             self::$conn = new PDO("mysql:host=" . self::$servidor . ";dbname=" . self::$database, self::$usuario, self::$password);
@@ -47,8 +33,7 @@ class BD {
         try {
             $sql = self::$conn->prepare($getAllSql);
             $sql->execute($condicion);
-            $lines = $sql->fetchAll(PDO::FETCH_ASSOC);
-            return $lines;
+            return $sql->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             echo "Something wrong happened: " . $e->getMessage();
         }
