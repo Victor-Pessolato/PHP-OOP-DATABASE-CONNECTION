@@ -1,9 +1,8 @@
 <?php
 
-class BD {
-
-    static $server = "localhost", $user = "root", $password = "", $database = "sakila";
-    private $table, $idField, $fields, $showFields;
+class DB {
+    static $servidor = "localhost", $usuario = "root", $password = "", $database = "sakila";
+    private $table, $idField;
     private static $conn;
 
     function __construct($table, $idField, $fields = '', $showFields = '') {
