@@ -7,14 +7,14 @@ class BD {
     private static $conn;
 
     function __construct($table, $idField, $fields = '', $showFields = '') {
-        self::conectar();
+        self::connect();
         $this->table = $table;
         $this->idField = $idField;
         $this->fields = $fields;
         $this->showFields = $showFields;
     }
 
-    static function conectar() {
+    static function connect() {
         try {
             self::$conn = new PDO("mysql:host=" . self::$server . ";dbname=" . self::$database, self::$user, self::$password);
             self::$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
