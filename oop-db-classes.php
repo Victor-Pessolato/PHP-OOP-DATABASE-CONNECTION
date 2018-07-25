@@ -23,7 +23,11 @@ class BD {
         }
     }
 
-    function getAll($condicion = []) {
+    /**
+     * Returns all the elements from table that meet a specified condition, if param empty, returns all entries.
+     * @param array $condicion - passes the condition by collum value.
+     */
+    function getLines($condicion = []) {
         $getAllSql = 'Select * from ' . $this->table;
         if (!empty($condicion)) {
             $getAllSql = $getAllSql . ' where ' . join(' and ', array_map(function($v) {
@@ -38,22 +42,7 @@ class BD {
             echo "Something wrong happened: " . $e->getMessage();
         }
     }
-
-    /**
-     * Esta funcion nos devuelve el elemento de la tabla que tenga el id que lo pasamos por parametro
-     * @param int $id  - El id que buscaremos en la tabla.
-     */
-    function getById($id) {
-        try {
-            $sql = self::$conn->prepare("select * from " . $this->table . " where " . $this->table . "_id = " . $id);
-            $sql->execute();
-            $lineas = $sql->fetch(PDO::FETCH_ASSOC);
-            return $lineas;
-        } catch (Exception $e) {
-            echo "Something wrong happened: " . $e->getMessage();
-        }
-    }
-
+    
     function insert($arrayToInsert) {
         $campos = implode(array_keys($arrayToInsert), ',');
         $valores = implode($arrayToInsert, ',');
@@ -79,14 +68,14 @@ class BD {
      * @param int $id - id of the row to be updated
      * @param array $valores - associative array with collum names and values
      */
-    function update($id, $valores) {
-        $campos = join(',', array_map(function($v) {
+    function update($id, $values) {
+        $fields = join(',', array_map(function($v) {
                     return $v . '=:' . $v;
-                }, array_keys($valores)));
-        $sql = 'update ' . $this->table . ' set ' . $campos . ' where ' . $this->idField . ' = ' . $id;
+                }, array_keys($values)));
+        $sql = 'update ' . $this->table . ' set ' . $fields . ' where ' . $this->idField . ' = ' . $id;
         try {
             $st = self::$conn->prepare($sql);
-            $st->execute($valores);
+            $st->execute($values);
         } catch (Exception $exc) {
             echo $exc->getTraceAsString();
         }
