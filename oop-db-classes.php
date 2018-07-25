@@ -1,9 +1,9 @@
 <?php
 
-class BD {
+class DB {
 
     static $servidor = "localhost", $usuario = "root", $password = "", $database = "sakila";
-    private $table, $idField, $fields, $showFields;
+    private $table, $idField;
     private static $conn;
 
     function __construct($tabla, $idField, $fields = '', $showFields = '') {
